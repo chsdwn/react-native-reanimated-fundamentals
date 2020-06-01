@@ -1,11 +1,22 @@
-import React from 'react';
-import { SafeAreaView, StatusBar } from 'react-native';
+import React, { useEffect } from 'react';
+import { SafeAreaView, StatusBar, StyleSheet, Text } from 'react-native';
+
+import { Accordion } from './src/components/Accordion';
+import { Cube } from './src/components/Cube';
 
 export const App = () => {
   return (
     <>
       <StatusBar />
-      <SafeAreaView></SafeAreaView>
+      <SafeAreaView style={styles.container}>
+        <Accordion />
+      </SafeAreaView>
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
