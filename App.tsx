@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { SafeAreaView, StatusBar, StyleSheet, Text } from 'react-native';
 
 import { Accordion } from './src/components/Accordion';
+import { Box } from './src/components/Box';
 import { Cube } from './src/components/Cube';
 
 export const App = () => {
@@ -9,7 +10,7 @@ export const App = () => {
     <>
       <StatusBar />
       <SafeAreaView style={styles.container}>
-        <Accordion />
+        <Box />
       </SafeAreaView>
     </>
   );
