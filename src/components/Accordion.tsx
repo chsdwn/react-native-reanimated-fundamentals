@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { Easing } from 'react-native-reanimated';
 import { State, TapGestureHandler } from 'react-native-gesture-handler';
@@ -32,7 +32,7 @@ function runTiming(clock: Animated.Clock, value: any, dest: any) {
   };
 
   const config = {
-    duration: 1000,
+    duration: 500,
     toValue: dest,
     easing: Easing.inOut(Easing.cubic),
   };
@@ -61,57 +61,104 @@ export const Accordion = () => {
   const [showContent2, setShowContent2] = useState(false);
   const [showContent3, setShowContent3] = useState(false);
 
-  const state = new Value(State.UNDETERMINED);
-  const state2 = new Value(State.UNDETERMINED);
-  const state3 = new Value(State.UNDETERMINED);
-
-  const finished = new Value(0);
-  const position = new Value(0);
-  const time = new Value(0);
-  const frameTime = new Value(0);
-
-  const heightRow1 = new Value(0);
-  const heightRow2 = new Value(0);
-  const heightRow3 = new Value(0);
-
-  useCode(
-    () =>
-      cond(
-        eq(state, State.END),
-        set(heightRow1, runTiming(new Clock(), new Value(0), new Value(150))),
-      ),
-    [state, heightRow1],
-  );
-  useCode(
-    () =>
-      cond(
-        eq(state2, State.END),
-        set(heightRow2, runTiming(new Clock(), new Value(0), new Value(150))),
-      ),
-    [state2, heightRow2],
-  );
-  useCode(
-    () =>
-      cond(
-        eq(state3, State.END),
-        set(heightRow3, runTiming(new Clock(), new Value(0), new Value(150))),
-      ),
-    [state3, heightRow3],
-  );
+  let heightRow1 = useRef(new Value(50));
+  let heightRow2 = useRef(new Value(50));
+  let heightRow3 = useRef(new Value(50));
 
   const toggleRow1Content = () => {
+    if (!showContent1) {
+      heightRow1.current = runTiming(
+        new Clock(),
+        new Value(50),
+        new Value(200),
+      );
+    } else {
+      heightRow1.current = runTiming(
+        new Clock(),
+        new Value(200),
+        new Value(50),
+      );
+    }
+    if (showContent2) {
+      heightRow2.current = runTiming(
+        new Clock(),
+        new Value(200),
+        new Value(50),
+      );
+    }
+    if (showContent3) {
+      heightRow3.current = runTiming(
+        new Clock(),
+        new Value(200),
+        new Value(50),
+      );
+    }
     setShowContent1(!showContent1);
     setShowContent2(false);
     setShowContent3(false);
   };
 
   const toggleRow2Content = () => {
+    if (!showContent2) {
+      heightRow2.current = runTiming(
+        new Clock(),
+        new Value(50),
+        new Value(200),
+      );
+    } else {
+      heightRow2.current = runTiming(
+        new Clock(),
+        new Value(200),
+        new Value(50),
+      );
+    }
+    if (showContent1) {
+      heightRow1.current = runTiming(
+        new Clock(),
+        new Value(200),
+        new Value(50),
+      );
+    }
+    if (showContent3) {
+      heightRow3.current = runTiming(
+        new Clock(),
+        new Value(200),
+        new Value(50),
+      );
+    }
     setShowContent1(false);
     setShowContent2(!showContent2);
     setShowContent3(false);
   };
 
   const toggleRow3Content = () => {
+    if (!showContent3) {
+      heightRow3.current = runTiming(
+        new Clock(),
+        new Value(50),
+        new Value(200),
+      );
+    } else {
+      heightRow3.current = runTiming(
+        new Clock(),
+        new Value(200),
+        new Value(50),
+      );
+    }
+    if (showContent1) {
+      heightRow1.current = runTiming(
+        new Clock(),
+        new Value(200),
+        new Value(50),
+      );
+    }
+    if (showContent2) {
+      heightRow2.current = runTiming(
+        new Clock(),
+        new Value(200),
+        new Value(50),
+      );
+    }
     setShowContent1(false);
     setShowContent2(false);
     setShowContent3(!showContent3);
@@ -122,24 +169,20 @@ export const Accordion = () => {
       <Row
         title={'Row 1'}
         content={'This is first row'}
-        height={heightRow1}
-        onHandlerStateChange={Animated.event([{ nativeEvent: { state } }])}
+        height={heightRow1.current}
+        toggleContent={toggleRow1Content}
       />
       <Row
         title={'Row 2'}
-        content={'This is first row'}
-        height={heightRow2}
-        onHandlerStateChange={Animated.event([
-          { nativeEvent: { state: state2 } },
-        ])}
+        content={'This is second row'}
+        height={heightRow2.current}
+        toggleContent={toggleRow2Content}
       />
       <Row
         title={'Row 3'}
-        content={'This is first row'}
-        height={heightRow3}
-        onHandlerStateChange={Animated.event([
-          { nativeEvent: { state: state3 } },
-        ])}
+        content={'This is third row'}
+        height={heightRow3.current}
+        toggleContent={toggleRow3Content}
       />
     </View>
   );

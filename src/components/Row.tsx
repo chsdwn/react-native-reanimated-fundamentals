@@ -1,47 +1,31 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import Animated from 'react-native-reanimated';
-import { TapGestureHandler } from 'react-native-gesture-handler';
 
 interface IProps {
   title: string;
   content: string;
+  toggleContent: () => void;
   height: Animated.Value<number>;
-  onHandlerStateChange: any;
 }
-
-const {
-  block,
-  debug,
-  clockRunning,
-  cond,
-  set,
-  startClock,
-  stopClock,
-  timing,
-  Clock,
-  Value,
-} = Animated;
 
 export const Row: React.FC<IProps> = ({
   title,
   content,
+  toggleContent,
   height,
-  onHandlerStateChange,
 }) => {
   return (
-    <TapGestureHandler onHandlerStateChange={onHandlerStateChange}>
-      <Animated.View>
-        <TouchableOpacity>
-          <View style={styles.row}>
-            <Text style={styles.text}>{title}</Text>
-          </View>
-        </TouchableOpacity>
-        <Animated.ScrollView style={{ height }}>
-          <Text>{content}</Text>
-        </Animated.ScrollView>
-      </Animated.View>
-    </TapGestureHandler>
+    <Animated.View style={{ height }}>
+      <TouchableOpacity onPress={toggleContent}>
+        <View style={styles.row}>
+          <Text style={styles.text}>{title}</Text>
+        </View>
+      </TouchableOpacity>
+      <Animated.ScrollView style={{ height }}>
+        <Text>{content}</Text>
+      </Animated.ScrollView>
+    </Animated.View>
   );
 };
 
