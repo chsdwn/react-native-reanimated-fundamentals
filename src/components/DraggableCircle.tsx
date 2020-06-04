@@ -7,7 +7,7 @@ import { SCREEN_WIDTH, SCREEN_HEIGHT } from '../constants/app';
 
 const CIRCLE_SIZE = 70;
 
-const { add, cond, eq, event, set, Value } = Animated;
+const { add, cond, eq, event, interpolate, set, Extrapolate, Value } = Animated;
 
 export const DraggableCircle = () => {
   const dragX = new Value(0);
@@ -27,6 +27,18 @@ export const DraggableCircle = () => {
     add(offsetY, dragY),
     set(offsetY, add(offsetY, dragY)),
   );
+
+  const opacity = interpolate(transY, {
+    inputRange: [0, SCREEN_HEIGHT],
+    outputRange: [0.1, 1],
+  });
+
+  const borderWidth = interpolate(transX, {
+    inputRange: [0, SCREEN_WIDTH],
+    outputRange: [1, 5],
+    // indicates that output value never be less than 1 and more than 5
+    extrapolate: Extrapolate.CLAMP,
+  });
 
   const onGestureEvent = event([
     {
@@ -52,7 +64,11 @@ export const DraggableCircle = () => {
         <Animated.View
           style={[
             styles.circle,
-            { transform: [{ translateX: transX }, { translateY: transY }] },
+            {
+              opacity,
+              borderWidth,
+              transform: [{ translateX: transX }, { translateY: transY }],
+            },
           ]}
         />
       </PanGestureHandler>
