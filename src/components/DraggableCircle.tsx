@@ -1,13 +1,29 @@
-import React from 'react';
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
-import Animated from 'react-native-reanimated';
+import React, { useEffect, useCallback } from 'react';
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  View,
+  LayoutChangeEvent,
+} from 'react-native';
+import Animated, { useCode } from 'react-native-reanimated';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 
 import { SCREEN_WIDTH, SCREEN_HEIGHT } from '../constants/app';
 
 const CIRCLE_SIZE = 70;
 
-const { add, cond, eq, event, interpolate, set, Extrapolate, Value } = Animated;
+const {
+  add,
+  call,
+  cond,
+  eq,
+  event,
+  interpolate,
+  set,
+  Extrapolate,
+  Value,
+} = Animated;
 
 export const DraggableCircle = () => {
   const dragX = new Value(0);
@@ -15,16 +31,19 @@ export const DraggableCircle = () => {
   const gestureState = new Value(-1);
 
   const offsetX = new Value(SCREEN_WIDTH / 2);
-  const offsetY = new Value(SCREEN_HEIGHT / 2);
+  const offsetY = new Value(100);
+
+  const addX = add(offsetX, dragX);
+  const addY = add(offsetY, dragY);
 
   const transX = cond(
     eq(gestureState, State.ACTIVE),
-    add(offsetX, dragX),
+    addX,
     set(offsetX, add(offsetX, dragX)),
   );
-  const transY = cond(
+  let transY = cond(
     eq(gestureState, State.ACTIVE),
-    add(offsetY, dragY),
+    addY,
     set(offsetY, add(offsetY, dragY)),
   );
 
@@ -40,6 +59,25 @@ export const DraggableCircle = () => {
     extrapolate: Extrapolate.CLAMP,
   });
 
+  let top = 0;
+  let bottom = 0;
+  let left = 0;
+  let right = 0;
+
+  const onDrop = ([x, y]: any) => {
+    if (x >= left && x <= right && y >= top && y <= bottom)
+      console.log('Drop zone');
+  };
+
+  useCode(
+    () =>
+      (transY = cond(eq(gestureState, State.ACTIVE), addY, [
+        cond(eq(gestureState, State.END), call([addX, addY], onDrop)),
+        set(offsetY, addY),
+      ])),
+    [],
+  );
+
   const onGestureEvent = event([
     {
       nativeEvent: {
@@ -50,11 +88,20 @@ export const DraggableCircle = () => {
     },
   ]);
 
+  const saveDropZone = (e: LayoutChangeEvent) => {
+    const { width, height, x, y } = e.nativeEvent.layout;
+    top = y;
+    bottom = y + height;
+    left = x;
+    right = x + width;
+  };
+
   return (
     <View
       style={{
         flex: 1,
       }}>
+      <View style={styles.dropZone} onLayout={saveDropZone} />
       <PanGestureHandler
         maxPointers={1}
         // will be fired anytime there is a new gesture
@@ -77,8 +124,17 @@ export const DraggableCircle = () => {
 };
 
 const styles = StyleSheet.create({
+  dropZone: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,.2)',
+    height: '50%',
+  },
   circle: {
     backgroundColor: 'skyblue',
+    position: 'absolute',
     marginLeft: -(CIRCLE_SIZE / 2),
     marginTop: -(CIRCLE_SIZE / 2),
     width: CIRCLE_SIZE,
